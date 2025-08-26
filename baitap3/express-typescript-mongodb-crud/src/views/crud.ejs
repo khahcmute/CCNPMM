@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Tạo User Mới</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 40px;
+        background-color: #f8f9fa;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      .form-group {
+        margin-bottom: 20px;
+      }
+      label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: bold;
+        color: #333;
+      }
+      input {
+        width: 100%;
+        padding: 12px;
+        border: 2px solid #ddd;
+        border-radius: 6px;
+        font-size: 16px;
+        box-sizing: border-box;
+      }
+      input:focus {
+        border-color: #007bff;
+        outline: none;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 16px;
+        width: 100%;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #007bff;
+        text-decoration: none;
+        font-weight: 500;
+      }
+      .link:hover {
+        text-decoration: underline;
+      }
+      .alert {
+        padding: 12px 20px;
+        margin-bottom: 20px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      .alert-error {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>➕ Tạo User Mới</h1>
+
+      <!-- Hiển thị thông báo lỗi -->
+      <% if (typeof error !== 'undefined' && error) { %>
+      <div class="alert alert-error"><%= error %></div>
+      <% } %>
+
+      <form action="/post-crud" method="POST">
+        <div class="form-group">
+          <label for="firstName">Họ:</label>
+          <input
+            type="text"
+            id="firstName"
+            name="firstName"
+            value="<%= (typeof oldData !== 'undefined' && oldData && oldData.firstName) ? oldData.firstName : '' %>"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Tên:</label>
+          <input
+            type="text"
+            id="lastName"
+            name="lastName"
+            value="<%= (typeof oldData !== 'undefined' && oldData && oldData.lastName) ? oldData.lastName : '' %>"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input
+            type="email"
+            id="email"
+            name="email"
+            value="<%= (typeof oldData !== 'undefined' && oldData && oldData.email) ? oldData.email : '' %>"
+            required
+          />
+        </div>
+
+        <button type="submit">✅ Tạo User</button>
+      </form>
+
+      <a href="/crud" class="link">📋 Xem danh sách tất cả Users</a>
+    </div>
+  </body>
+</html>

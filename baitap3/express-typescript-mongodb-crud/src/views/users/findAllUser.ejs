@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách Users</title>
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 40px; 
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+        }
+        th, td { 
+            padding: 15px; 
+            text-align: left; 
+            border-bottom: 1px solid #ddd; 
+        }
+        th { 
+            background-color: #007bff; 
+            color: white;
+            font-weight: bold; 
+        }
+        tr:hover {
+            background-color: #f8f9fa;
+        }
+        .actions a { 
+            margin-right: 15px; 
+            color: #007bff; 
+            text-decoration: none; 
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+        .actions a:hover { 
+            background-color: #007bff;
+            color: white;
+        }
+        .actions a.delete { 
+            color: #dc3545; 
+        }
+        .actions a.delete:hover { 
+            background-color: #dc3545;
+            color: white;
+        }
+        .link { 
+            display: inline-block; 
+            margin-bottom: 20px; 
+            color: #007bff; 
+            text-decoration: none; 
+            font-weight: 500;
+            padding: 10px 15px;
+            background-color: #e7f3ff;
+            border-radius: 5px;
+        }
+        .link:hover { 
+            background-color: #007bff;
+            color: white;
+        }
+        .alert {
+            padding: 12px 20px;
+            margin-bottom: 20px;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .no-users {
+            text-align: center;
+            color: #666;
+            font-size: 18px;
+            margin: 40px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Danh sách tất cả Users</h1>
+        
+        <% if (typeof success !== 'undefined' && success) { %>
+            <div class="alert alert-success">
+                ✅ <%= success %>
+            </div>
+        <% } %>
+        
+        <a href="/" class="link">← Quay lại tạo User mới</a>
+        
+        <% if (dataUser && dataUser.length > 0) { %>
+            <table>
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Họ</th>
+                        <th>Tên</th>
+                        <th>Email</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% dataUser.forEach((user, index) => { %>
+                        <tr>
+                            <td><%= index + 1 %></td>
+                            <td><%= user.firstName %></td>
+                            <td><%= user.lastName %></td>
+                            <td><%= user.email %></td>
+                            <td><%= new Date(user.createdAt).toLocaleDateString('vi-VN') %></td>
+                            <td class="actions">
+                                <a href="/edit-crud?id=<%= user._id %>">✏️ Sửa</a>
+                                <a href="/delete-crud?id=<%= user._id %>" class="delete" onclick="return confirm('Bạn có chắc muốn xóa user này?')">🗑️ Xóa</a>
+                            </td>
+                        </tr>
+                    <% }) %>
+                </tbody>
+            </table>
+            <p style="margin-top: 20px; color: #666;">
+                📊 Tổng cộng: <strong><%= dataUser.length %></strong> users
+            </p>
+        <% } else { %>
+            <div class="no-users">
+                😢 Chưa có user nào. <a href="/" style="color: #007bff;">Tạo user đầu tiên</a>
+            </div>
+        <% } %>
+    </div>
+</body>
+</html>
