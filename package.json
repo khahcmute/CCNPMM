@@ -4,6 +4,11 @@
     "cookie-parser": "^1.4.7",
     "express": "^5.1.0",
     "multer": "^2.0.2",
-    "save": "^2.9.0"
+    "mysql2": "^3.14.3",
+    "save": "^2.9.0",
+    "sequelize": "^6.37.7"
+  },
+  "devDependencies": {
+    "sequelize-cli": "^6.6.3"
   }
 }
