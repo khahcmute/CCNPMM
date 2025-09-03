@@ -1,281 +1,356 @@
-import React, { useState, useEffect } from "react";
-import { User, Trash2, Calendar, Mail } from "lucide-react";
-import { useAuth } from "../components/context/AuthContext";
-import { callAPI, API_ENDPOINTS } from "../util/api";
-import { notification, Modal } from "antd";
-import Header from "../components/layout/Header";
+// src/pages/HomePage.jsx - Updated để thêm navigation đến products
+import React, { useContext, useEffect, useState } from "react";
+import {
+  Layout,
+  Card,
+  Row,
+  Col,
+  Button,
+  Typography,
+  Space,
+  Statistic,
+  List,
+  Avatar,
+} from "antd";
+import {
+  ShoppingOutlined,
+  AppstoreOutlined,
+  TrophyOutlined,
+  FireOutlined,
+  ArrowRightOutlined,
+} from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../components/context/AuthContext";
+import { productAPI } from "../services/productService";
 
-const { confirm } = Modal;
+const { Header, Content, Footer } = Layout;
+const { Title, Paragraph } = Typography;
 
 const HomePage = () => {
-  const { user } = useAuth();
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [deleteLoading, setDeleteLoading] = useState(null);
+  const { user, logout } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [stats, setStats] = useState({
+    totalProducts: 0,
+    totalCategories: 0,
+  });
 
   useEffect(() => {
-    fetchUsers();
+    loadHomeData();
   }, []);
 
-  const fetchUsers = async () => {
+  const loadHomeData = async () => {
     try {
-      const response = await callAPI(API_ENDPOINTS.GET_USERS, "GET");
-
-      if (response.success) {
-        setUsers(response.data.users || []);
-      } else {
-        notification.error({
-          message: "Lỗi tải dữ liệu",
-          description: response.message,
-          placement: "topRight",
-        });
-      }
-    } catch (error) {
-      notification.error({
-        message: "Lỗi hệ thống",
-        description: "Không thể tải danh sách người dùng",
-        placement: "topRight",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleDeleteUser = (userId, userName) => {
-    confirm({
-      title: "Xác nhận xóa người dùng",
-      content: `Bạn có chắc chắn muốn xóa người dùng "${userName}"? Hành động này không thể hoàn tác.`,
-      okText: "Xóa",
-      okType: "danger",
-      cancelText: "Hủy",
-      onOk: () => deleteUser(userId),
-    });
-  };
-
-  const deleteUser = async (userId) => {
-    setDeleteLoading(userId);
-
-    try {
-      const response = await callAPI(
-        `${API_ENDPOINTS.DELETE_USER}/${userId}`,
-        "DELETE"
+      // Load featured products (sản phẩm nổi bật)
+      const productsResponse = await productAPI.getProductsByCategory(
+        "all",
+        1,
+        8
       );
+      if (productsResponse.EC === 0) {
+        setFeaturedProducts(productsResponse.DT.products);
+        setStats((prev) => ({
+          ...prev,
+          totalProducts: productsResponse.DT.pagination.totalProducts,
+        }));
+      }
 
-      if (response.success) {
-        setUsers((prev) => prev.filter((u) => u._id !== userId));
-        notification.success({
-          message: "Xóa thành công",
-          description: "Người dùng đã được xóa khỏi hệ thống",
-          placement: "topRight",
-        });
-      } else {
-        notification.error({
-          message: "Xóa thất bại",
-          description: response.message,
-          placement: "topRight",
-        });
+      // Load categories
+      const categoriesResponse = await productAPI.getAllCategories();
+      if (categoriesResponse.EC === 0) {
+        setCategories(categoriesResponse.DT);
+        setStats((prev) => ({
+          ...prev,
+          totalCategories: categoriesResponse.DT.length,
+        }));
       }
     } catch (error) {
-      notification.error({
-        message: "Lỗi hệ thống",
-        description: "Không thể xóa người dùng",
-        placement: "topRight",
-      });
-    } finally {
-      setDeleteLoading(null);
+      console.error("Error loading home data:", error);
     }
   };
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString("vi-VN", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <Header />
-        <div className="flex justify-center items-center h-96">
-          <div className="text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-4 text-gray-600">Đang tải dữ liệu...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const formatPrice = (price) => {
+    return new Intl.NumberFormat("vi-VN", {
+      style: "currency",
+      currency: "VND",
+    }).format(price);
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-
-      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-6 text-white">
-            <h1 className="text-3xl font-bold mb-2">
-              Chào mừng trở lại, {user?.name}! 👋
-            </h1>
-            <p className="text-blue-100">Quản lý hệ thống người dùng của bạn</p>
-          </div>
+    <Layout style={{ minHeight: "100vh" }}>
+      <Header
+        style={{
+          background: "#fff",
+          padding: "0 24px",
+          boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <div
+          style={{
+            fontSize: "20px",
+            fontWeight: "bold",
+            color: "#1890ff",
+          }}
+        >
+          MyShop
         </div>
+        <Space>
+          <span>Xin chào, {user?.email || "User"}</span>
+          <Button onClick={() => navigate("/products")} type="primary">
+            Xem sản phẩm
+          </Button>
+          <Button onClick={handleLogout} type="default">
+            Đăng xuất
+          </Button>
+        </Space>
+      </Header>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <User className="w-6 h-6 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
-                  Tổng người dùng
-                </p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  {users.length}
-                </p>
-              </div>
-            </div>
-          </div>
+      <Content style={{ padding: "24px" }}>
+        {/* Hero Section */}
+        <Card
+          style={{
+            marginBottom: "24px",
+            background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+            color: "white",
+            border: "none",
+          }}
+        >
+          <Row justify="center" align="middle" style={{ minHeight: "200px" }}>
+            <Col xs={24} md={12} style={{ textAlign: "center" }}>
+              <Title level={2} style={{ color: "white", marginBottom: "16px" }}>
+                Chào mừng đến với MyShop
+              </Title>
+              <Paragraph
+                style={{
+                  color: "rgba(255,255,255,0.9)",
+                  fontSize: "16px",
+                  marginBottom: "24px",
+                }}
+              >
+                Khám phá hàng ngàn sản phẩm chất lượng với giá tốt nhất
+              </Paragraph>
+              <Button
+                type="primary"
+                size="large"
+                icon={<ShoppingOutlined />}
+                onClick={() => navigate("/products")}
+                style={{
+                  background: "rgba(255,255,255,0.2)",
+                  borderColor: "rgba(255,255,255,0.3)",
+                }}
+              >
+                Mua sắm ngay
+              </Button>
+            </Col>
+          </Row>
+        </Card>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Mail className="w-6 h-6 text-green-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
-                  Email của bạn
-                </p>
-                <p className="text-lg font-medium text-gray-900">
-                  {user?.email}
-                </p>
-              </div>
-            </div>
-          </div>
+        {/* Statistics */}
+        <Row gutter={[16, 16]} style={{ marginBottom: "32px" }}>
+          <Col xs={12} sm={8} md={6}>
+            <Card>
+              <Statistic
+                title="Tổng sản phẩm"
+                value={stats.totalProducts}
+                prefix={<AppstoreOutlined />}
+                valueStyle={{ color: "#3f8600" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Card>
+              <Statistic
+                title="Danh mục"
+                value={stats.totalCategories}
+                prefix={<TrophyOutlined />}
+                valueStyle={{ color: "#cf1322" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Card>
+              <Statistic
+                title="Người dùng"
+                value={1}
+                prefix={<FireOutlined />}
+                valueStyle={{ color: "#1890ff" }}
+              />
+            </Card>
+          </Col>
+          <Col xs={12} sm={8} md={6}>
+            <Card>
+              <Statistic
+                title="Đánh giá"
+                value={4.8}
+                precision={1}
+                prefix={<TrophyOutlined />}
+                suffix="/ 5"
+                valueStyle={{ color: "#722ed1" }}
+              />
+            </Card>
+          </Col>
+        </Row>
 
-          <div className="bg-white rounded-xl shadow-sm p-6 border border-gray-200">
-            <div className="flex items-center">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Calendar className="w-6 h-6 text-purple-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-600">
-                  Ngày tham gia
-                </p>
-                <p className="text-lg font-medium text-gray-900">
-                  {user?.createdAt ? formatDate(user.createdAt) : "N/A"}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Users Table */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden border border-gray-200">
-          <div className="px-6 py-4 border-b border-gray-200 bg-gray-50">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Danh sách người dùng
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Quản lý tất cả người dùng trong hệ thống
-            </p>
-          </div>
-
-          <div className="overflow-x-auto">
-            {users.length > 0 ? (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Người dùng
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Email
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Ngày tạo
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Hành động
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {users.map((userItem) => (
-                    <tr
-                      key={userItem._id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center">
-                          <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                            <User className="w-5 h-5 text-white" />
-                          </div>
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900">
-                              {userItem.name}
-                            </div>
-                            <div className="text-sm text-gray-500">
-                              ID: {userItem._id.slice(-6)}
-                            </div>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {userItem.email}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
-                          {formatDate(userItem.createdAt)}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button
-                          onClick={() =>
-                            handleDeleteUser(userItem._id, userItem.name)
+        <Row gutter={[24, 24]}>
+          {/* Featured Products */}
+          <Col xs={24} lg={16}>
+            <Card
+              title={
+                <Space>
+                  <FireOutlined style={{ color: "#ff4d4f" }} />
+                  Sản phẩm nổi bật
+                </Space>
+              }
+              extra={
+                <Button
+                  type="link"
+                  icon={<ArrowRightOutlined />}
+                  onClick={() => navigate("/products")}
+                >
+                  Xem tất cả
+                </Button>
+              }
+            >
+              <Row gutter={[16, 16]}>
+                {featuredProducts.slice(0, 6).map((product) => (
+                  <Col key={product._id} xs={12} sm={8} md={8}>
+                    <Card
+                      hoverable
+                      size="small"
+                      cover={
+                        <img
+                          alt={product.name}
+                          src={
+                            product.images?.[0] ||
+                            "https://via.placeholder.com/200x150?text=No+Image"
                           }
-                          disabled={deleteLoading === userItem._id}
-                          className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-lg text-red-700 bg-white hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                        >
-                          {deleteLoading === userItem._id ? (
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600"></div>
-                          ) : (
-                            <>
-                              <Trash2 className="w-4 h-4 mr-1" />
-                              Xóa
-                            </>
-                          )}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <div className="text-center py-12">
-                <div className="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <User className="w-12 h-12 text-gray-400" />
-                </div>
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  Chưa có người dùng nào
-                </h3>
-                <p className="text-gray-500">
-                  Hãy đăng ký tài khoản mới để bắt đầu sử dụng hệ thống.
-                </p>
-              </div>
-            )}
-          </div>
-        </div>
-      </main>
-    </div>
+                          style={{ height: 120, objectFit: "cover" }}
+                        />
+                      }
+                      onClick={() => navigate(`/products/${product._id}`)}
+                    >
+                      <Card.Meta
+                        title={
+                          <div
+                            style={{
+                              fontSize: "14px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              whiteSpace: "nowrap",
+                            }}
+                          >
+                            {product.name}
+                          </div>
+                        }
+                        description={
+                          <div
+                            style={{
+                              color: "#ff4d4f",
+                              fontWeight: "bold",
+                              fontSize: "12px",
+                            }}
+                          >
+                            {formatPrice(product.price)}
+                          </div>
+                        }
+                      />
+                    </Card>
+                  </Col>
+                ))}
+              </Row>
+            </Card>
+          </Col>
+
+          {/* Categories */}
+          <Col xs={24} lg={8}>
+            <Card
+              title={
+                <Space>
+                  <AppstoreOutlined style={{ color: "#1890ff" }} />
+                  Danh mục sản phẩm
+                </Space>
+              }
+              extra={
+                <Button
+                  type="link"
+                  icon={<ArrowRightOutlined />}
+                  onClick={() => navigate("/products")}
+                >
+                  Xem tất cả
+                </Button>
+              }
+            >
+              <List
+                itemLayout="horizontal"
+                dataSource={categories.slice(0, 5)}
+                renderItem={(category) => (
+                  <List.Item
+                    style={{ cursor: "pointer" }}
+                    onClick={() =>
+                      navigate(`/products?category=${category._id}`)
+                    }
+                  >
+                    <List.Item.Meta
+                      avatar={
+                        <Avatar
+                          style={{ backgroundColor: "#1890ff" }}
+                          icon={<AppstoreOutlined />}
+                        />
+                      }
+                      title={category.name}
+                      description={
+                        category.description || "Nhiều sản phẩm chất lượng"
+                      }
+                    />
+                    <ArrowRightOutlined style={{ color: "#8c8c8c" }} />
+                  </List.Item>
+                )}
+              />
+            </Card>
+          </Col>
+        </Row>
+
+        {/* Quick Actions */}
+        <Row gutter={[16, 16]} style={{ marginTop: "32px" }}>
+          <Col span={24}>
+            <Card title="Thao tác nhanh">
+              <Space wrap>
+                <Button
+                  type="primary"
+                  icon={<AppstoreOutlined />}
+                  onClick={() => navigate("/products")}
+                >
+                  Tất cả sản phẩm
+                </Button>
+                {categories.slice(0, 4).map((category) => (
+                  <Button
+                    key={category._id}
+                    onClick={() =>
+                      navigate(`/products?category=${category._id}`)
+                    }
+                  >
+                    {category.name}
+                  </Button>
+                ))}
+              </Space>
+            </Card>
+          </Col>
+        </Row>
+      </Content>
+
+      <Footer style={{ textAlign: "center", background: "#f0f2f5" }}>
+        MyShop ©2024 Created with ❤️
+      </Footer>
+    </Layout>
   );
 };
 

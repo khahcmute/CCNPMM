@@ -1,0 +1,257 @@
+/* src/styles/ProductList.css */
+
+/* Product list card styling cho list view */
+.product-list-card .ant-card-body {
+  padding: 16px;
+}
+
+.product-list-card .ant-card-cover {
+  width: 120px;
+  float: left;
+  margin-right: 16px;
+}
+
+.product-list-card .ant-card-meta {
+  margin-left: 136px;
+}
+
+.product-list-card .ant-card-actions {
+  margin-left: 136px;
+  border-top: 1px solid #f0f0f0;
+}
+
+/* Infinite scroll styling */
+.infinite-scroll-component {
+  overflow: visible !important;
+}
+
+/* Product card hover effects */
+.ant-card-hoverable:hover {
+  transform: translateY(-2px);
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Price styling */
+.product-price {
+  font-size: 16px;
+  font-weight: bold;
+  color: #ff4d4f;
+}
+
+.product-original-price {
+  font-size: 14px;
+  color: #8c8c8c;
+  text-decoration: line-through;
+  margin-left: 8px;
+}
+
+/* Stock indicator */
+.stock-indicator {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+}
+
+.stock-low {
+  color: #faad14;
+}
+
+.stock-out {
+  color: #ff4d4f;
+}
+
+.stock-available {
+  color: #52c41a;
+}
+
+/* Filter section */
+.filter-section {
+  background: #fafafa;
+  padding: 16px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+}
+
+/* View mode buttons */
+.view-mode-buttons .ant-btn {
+  height: 32px;
+  width: 40px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .product-list-card .ant-card-cover {
+    width: 100px;
+    margin-right: 12px;
+  }
+
+  .product-list-card .ant-card-meta {
+    margin-left: 112px;
+  }
+
+  .product-list-card .ant-card-actions {
+    margin-left: 112px;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-list-card .ant-card-cover {
+    width: 100%;
+    float: none;
+    margin-right: 0;
+    margin-bottom: 12px;
+  }
+
+  .product-list-card .ant-card-meta,
+  .product-list-card .ant-card-actions {
+    margin-left: 0;
+  }
+}
+
+/* Loading spinner */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  padding: 40px;
+}
+
+/* Empty state */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+/* Product detail page specific styles */
+.product-detail-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.product-image-gallery {
+  text-align: center;
+}
+
+.product-thumbnail {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.product-thumbnail:hover {
+  transform: scale(1.05);
+}
+
+.product-thumbnail.active {
+  border: 2px solid #1890ff;
+}
+
+.product-info {
+  padding: 0 20px;
+}
+
+.product-title {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #262626;
+}
+
+.product-price-main {
+  font-size: 32px;
+  font-weight: bold;
+  color: #ff4d4f;
+  margin-bottom: 16px;
+}
+
+.stock-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.quantity-selector {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-buttons .ant-btn {
+  height: 48px;
+  font-weight: 500;
+}
+
+/* Breadcrumb styling */
+.product-breadcrumb {
+  margin-bottom: 24px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+/* Product specifications */
+.product-specs .ant-descriptions-item-label {
+  font-weight: 600;
+  color: #595959;
+}
+
+/* Animation for lazy loading */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.product-card-fade-in {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+/* Category filter tags */
+.category-filter .ant-tag {
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.category-filter .ant-tag:hover {
+  transform: scale(1.05);
+}
+
+/* Sort dropdown styling */
+.sort-dropdown .ant-select-selector {
+  height: 40px !important;
+}
+
+/* Search input styling */
+.product-search .ant-input-search {
+  height: 40px;
+}
+
+.product-search .ant-input-search .ant-input {
+  height: 40px;
+  border-radius: 6px 0 0 6px;
+}
+
+.product-search .ant-btn {
+  height: 40px;
+  border-radius: 0 6px 6px 0;
+}

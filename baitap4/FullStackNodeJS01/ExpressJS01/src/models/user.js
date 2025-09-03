@@ -1,117 +1,68 @@
-const { DataTypes } = require("sequelize");
-const { sequelize } = require("../config/database");
+const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 
-const User = sequelize.define(
-  "User",
+const userSchema = new mongoose.Schema(
   {
-    id: {
-      type: DataTypes.INTEGER,
-      primaryKey: true,
-      autoIncrement: true,
-    },
     email: {
-      type: DataTypes.STRING(191),
-      allowNull: false,
+      type: String,
+      required: true,
       unique: true,
-      validate: {
-        isEmail: {
-          msg: "Please provide a valid email address",
-        },
-      },
+      lowercase: true,
+      trim: true,
     },
     password: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      validate: {
-        len: {
-          args: [6, 255],
-          msg: "Password must be at least 6 characters long",
-        },
-      },
+      type: String,
+      required: true,
+      minlength: 6,
     },
     firstName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        len: {
-          args: [1, 100],
-          msg: "First name must be between 1 and 100 characters",
-        },
-      },
+      type: String,
+      required: true,
+      trim: true,
     },
     lastName: {
-      type: DataTypes.STRING(100),
-      allowNull: false,
-      validate: {
-        len: {
-          args: [1, 100],
-          msg: "Last name must be between 1 and 100 characters",
-        },
-      },
+      type: String,
+      required: true,
+      trim: true,
     },
     phone: {
-      type: DataTypes.STRING(20),
-      allowNull: true,
-      validate: {
-        is: {
-          args: /^[\+]?[1-9][\d]{0,15}$/,
-          msg: "Please provide a valid phone number",
-        },
-      },
+      type: String,
     },
-    resetPasswordToken: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
-    resetPasswordExpires: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+    resetPasswordToken: String,
+    resetPasswordExpires: Date,
     isActive: {
-      type: DataTypes.BOOLEAN,
-      defaultValue: true,
+      type: Boolean,
+      default: true,
     },
-    lastLogin: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
+    lastLogin: Date,
   },
-  {
-    tableName: "users",
-    timestamps: true,
-    hooks: {
-      beforeCreate: async (user) => {
-        if (user.password) {
-          const saltRounds = 12;
-          user.password = await bcrypt.hash(user.password, saltRounds);
-        }
-      },
-      beforeUpdate: async (user) => {
-        if (user.changed("password")) {
-          const saltRounds = 12;
-          user.password = await bcrypt.hash(user.password, saltRounds);
-        }
-      },
-    },
-  }
+  { timestamps: true }
 );
 
+// Hash password before save
+userSchema.pre("save", async function (next) {
+  if (this.isModified("password")) {
+    const saltRounds = 12;
+    this.password = await bcrypt.hash(this.password, saltRounds);
+  }
+  next();
+});
+
 // Instance methods
-User.prototype.comparePassword = async function (candidatePassword) {
-  return await bcrypt.compare(candidatePassword, this.password);
+userSchema.methods.comparePassword = async function (candidatePassword) {
+  return bcrypt.compare(candidatePassword, this.password);
 };
 
-User.prototype.getFullName = function () {
+userSchema.methods.getFullName = function () {
   return `${this.firstName} ${this.lastName}`;
 };
 
-User.prototype.toJSON = function () {
-  const values = { ...this.get() };
-  delete values.password;
-  delete values.resetPasswordToken;
-  delete values.resetPasswordExpires;
-  return values;
+userSchema.methods.toJSON = function () {
+  const obj = this.toObject();
+  delete obj.password;
+  delete obj.resetPasswordToken;
+  delete obj.resetPasswordExpires;
+  return obj;
 };
 
-module.exports = User;
+module.exports = mongoose.models.User || mongoose.model("User", userSchema);

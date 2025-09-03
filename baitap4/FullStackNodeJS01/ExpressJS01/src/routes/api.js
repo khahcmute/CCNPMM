@@ -2,6 +2,7 @@ const express = require("express");
 const { body } = require("express-validator");
 const UserController = require("../controllers/userController");
 const HomeController = require("../controllers/homeController");
+const productController = require("../controllers/productController");
 const authMiddleware = require("../middleware/auth");
 const delayMiddleware = require("../middleware/delay");
 
@@ -78,5 +79,18 @@ router.get("/health", (req, res) => {
     version: "1.0.0",
   });
 });
+
+// Routes cho sản phẩm (public)
+router.get(
+  "/products/category/:categoryId",
+  productController.getProductsByCategory
+);
+router.get("/products", productController.getAllProducts);
+router.get("/products/search", productController.searchProducts);
+router.get("/products/:id", productController.getProductById);
+router.get("/categories", productController.getAllCategories);
+
+// Routes cho admin (protected)
+router.post("/products", authMiddleware, productController.createProduct);
 
 module.exports = router;
