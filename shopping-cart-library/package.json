@@ -1,0 +1,59 @@
+{
+  "name": "@ngochuy-hya/shopping-cart-library",
+  "version": "1.0.0",
+  "description": "A React shopping cart library with customizable UI components",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "react",
+    "shopping-cart",
+    "ecommerce",
+    "ui-components",
+    "typescript"
+  ],
+  "author": "Nguyễn Ngọc Huy",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ngochuy-hya/my-shopping-cart-library.git"
+  },
+  "homepage": "https://github.com/ngochuy-hya/my-shopping-cart-library#readme",
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.6",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.4",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@types/node": "^24.3.1",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@typescript-eslint/eslint-plugin": "^8.43.0",
+    "@typescript-eslint/parser": "^8.43.0",
+    "autoprefixer": "^10.4.21",
+    "eslint": "^9.35.0",
+    "jest": "^30.1.3",
+    "postcss": "^8.5.6",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "rollup": "^4.50.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-postcss": "^4.0.2",
+    "tailwindcss": "^4.1.13",
+    "tslib": "^2.8.1",
+    "typescript": "^5.9.2"
+  }
+}
